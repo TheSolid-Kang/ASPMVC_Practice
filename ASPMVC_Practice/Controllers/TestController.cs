@@ -1,22 +1,28 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 namespace ASPMVC_Practice.Controllers
 {
     public class TestController : Controller
     {
+        private readonly ILogger<HomeController> _logger;
+
+        public TestController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
         // GET: TestController
         public ActionResult Index()
         {
             return View();
         }
 
-/*        [Route("Home/Test1")]
-        public IActionResult Test1()
+        //[Route("~/Views/Home/Test1")]
+/*        public IActionResult Test1()
         {
+
             return View();
-        }
-*/
+        }*/
+
         // GET: TestController/Details/5
         public ActionResult Details(int id)
         {

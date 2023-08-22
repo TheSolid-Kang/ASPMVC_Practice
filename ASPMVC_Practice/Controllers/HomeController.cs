@@ -1,6 +1,7 @@
 ﻿using ASPMVC_Practice.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Engine._01.DBMgr;
 
 namespace ASPMVC_Practice.Controllers
 {
@@ -25,6 +26,7 @@ namespace ASPMVC_Practice.Controllers
 
         public IActionResult Test1()
         {
+            var mgr = new MSSQL_Mgr();
             return View();
         }
 
