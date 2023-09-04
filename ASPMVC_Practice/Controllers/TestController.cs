@@ -10,18 +10,18 @@ namespace ASPMVC_Practice.Controllers
         {
             _logger = logger;
         }
+ 
         // GET: TestController
         public ActionResult Index()
         {
             return View();
         }
 
-        //[Route("~/Views/Home/Test1")]
-/*        public IActionResult Test1()
+        public IActionResult Test()
         {
 
             return View();
-        }*/
+        }
 
         // GET: TestController/Details/5
         public ActionResult Details(int id)

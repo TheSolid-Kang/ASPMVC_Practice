@@ -7,6 +7,13 @@ namespace ASPMVC_Practice.Controllers
     //[Area("Test1")]
     public class TestController1 : Controller
     {
+        private readonly ILogger<HomeController> _logger;
+
+        public TestController1(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
         public IActionResult Index()
         {
             return View();
