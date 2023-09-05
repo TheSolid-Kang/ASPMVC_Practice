@@ -4,15 +4,9 @@ using Microsoft.VisualStudio.Web.CodeGeneration.CommandLine;
 
 namespace ASPMVC_Practice.Controllers
 {
-    //[Area("Test1")]
-    public class TestController1 : Controller
+    public class TestController1 : BaseController<TestController1>
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public TestController1(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        public TestController1(ILogger<TestController1> logger) : base(logger) { }
 
         public IActionResult Index()
         {

@@ -5,14 +5,9 @@ using Engine._01.DBMgr;
 
 namespace ASPMVC_Practice.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController<HomeController>
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        public HomeController(ILogger<HomeController> logger) : base(logger) { }
 
         public IActionResult Index()
         {

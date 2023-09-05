@@ -2,16 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 namespace ASPMVC_Practice.Controllers
 {
-    public class TestController : Controller
+    public class TestController : BaseController<TestController>
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public TestController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        public TestController(ILogger<TestController> logger) : base(logger) { }
  
-        // GET: TestController
         public ActionResult Index()
         {
             return View();
