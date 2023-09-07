@@ -15,6 +15,10 @@ namespace ASPMVC_Practice.Controllers
         public IActionResult Test1()
         {
             var mgr = new MSSQL_Mgr();
+            var ds = mgr.GetDataSet(MSSQL_Mgr.DB_CONNECTION.MATERIAL, "SELECT * FROM _TMMMaster");
+
+            Console.WriteLine("");
+
             return View();
         }
     }
