@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Engine._01.DBMgr;
+using ASPMVC_Practice.Migration;
 
 namespace ASPMVC_Practice.Controllers
 {
@@ -11,6 +12,15 @@ namespace ASPMVC_Practice.Controllers
 
         public IActionResult Index()
         {
+            using(var db = new TestDbContext())
+            {
+                var BibleList = db._TFBible.ToList();
+                foreach(var Bible in BibleList)
+                {
+                    Console.WriteLine(Bible.Testament);
+                }
+            }
+
             return View();
         }
 
