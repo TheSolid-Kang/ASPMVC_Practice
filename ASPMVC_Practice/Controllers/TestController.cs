@@ -1,5 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.AspNetCore.Components;
+using Type = System.Type;
+using Image = System.Drawing.Image;
+using System.IO;
+
 namespace ASPMVC_Practice.Controllers
 {
     public class TestController : BaseController<TestController>
@@ -13,6 +20,17 @@ namespace ASPMVC_Practice.Controllers
 
         public IActionResult Test()
         {
+            Image ab = BarcodeLib.Barcode.DoEncode(BarcodeLib.TYPE.CODE128, "1234");
+         
+            Bitmap bitmap = new Bitmap(ab);
+            byte[] result = null;
+
+            using(MemoryStream stream = new MemoryStream())
+            {
+                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                result = stream.ToArray();
+                ViewData["img"] = Convert.ToBase64String(result);
+            }
 
             return View();
         }

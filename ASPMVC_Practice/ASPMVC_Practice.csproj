@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BaseOutputPath>$(SolutionDir)bin</BaseOutputPath>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSharp-Engine\Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BarcodeLib">
+      <HintPath>..\packages\BarcodeLib 1.0.0.11\BarcodeLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,48 @@
-﻿@{
+﻿@using System.Drawing;
+@using BarcodeLib;
+@using Microsoft.CodeAnalysis.RulesetToEditorconfig;
+@using System.Text;
+@{
     ViewData["Title"] = "TestController Test";
     var Title = ViewData["Title"];
+    var bitmapSrc = ViewData["img"];
+    Console.WriteLine(bitmapSrc);
 }
 
 <h1>@Title</h1>
+<div>
+    <img src="data:image/;base64,@bitmapSrc" id="img" />
 
+
+</div>
+@{
+    
+}
+
+<script>
+    var img = document.getElementById("img");
+    
+
+    /*
+    // Select the image
+    const img = document.querySelector('#testImg');
+    img.addEventListener('load', function (event) {
+        getDataUrl(event.currentTarget);
+        //console.log(dataUrl);
+    });
+
+    function getDataUrl(img) {
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        // Set width and height
+        canvas.width = img.width;
+        canvas.height = img.height;
+        // Draw the image
+        ctx.drawImage(img, 0, 0);
+
+        var base64 = canvas.toDataURL('image/*');
+        strImage = base64.replace(/^data:image\/[a-z]+;base64,/, "");
+    }
+    */
+</script>
