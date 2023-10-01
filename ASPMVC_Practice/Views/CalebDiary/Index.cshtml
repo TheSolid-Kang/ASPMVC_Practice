@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "CalebDiary Index";
+    var DinamicGraph = ViewData["DinamicGraph"] as string;
+    System.Diagnostics.Debug.WriteLine(DinamicGraph);
+}
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<h1>@ViewData["Title"]</h1>
+<body>
+    <header>
+        <!--<jsp:include page="../../01.IncludePage/Header2.jsp" />-->
+    </header>
+    <section>
+        <!--<jsp:include page="../../01.IncludePage/Accordion_ManagerMyPage.jsp" />-->
+        <div class="default_box">
+            <h1>디폴트 페이지</h1>
+            <div class="manager_info">
+                <!--
+                아이디&nbsp;:&nbsp;${session_webManagerLoginInfo.wm_pk_id}
+                <br>
+                <br>
+                이름&nbsp;:&nbsp;${session_webManagerLoginInfo.wm_name}
+                <br>
+                <br>
+                관리등급&nbsp;:&nbsp;${session_webManagerLoginInfo.wm_permission}
+                </div>
+                -->
+                <div class="income_chart">
+                    <canvas id="myChart1" aria-label="income_chart" role="img"></canvas>
+                    <script>
+                        const ctx = document.getElementById('myChart1').getContext('2d');
+                        const myChart = new Chart(ctx, {
+                            type: 'bar',
+                            @DinamicGraph
+                            
+                            data: {
+                            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                                datasets: [{
+                                    label: '@ViewData["Keyword"]',
+                                    data: [@ViewData["TEMPDATA"]],
+                                    backgroundColor: ['rgba(121, 55, 218, 0.8)'],
+                                    borderColor: ['rgba(121, 55, 218, 1)'],
+                                    borderWidth: 1
+                                }/*, {
+                                    label: '라인 그래프1',
+                                    type: 'line',         // 'line' type
+                                    fill: false,         // 채우기 없음
+                                    lineTension: 0.2,  // 0이면 꺾은선 그래프, 숫자가 높을수록 둥글해짐
+                                    pointRadius: 0,    // 각 지점에 포인트 주지 않음
+                                    backgroundColor: 'rgb(255, 153, 0)',
+                                    borderColor: 'rgb(255, 153, 0)',
+                                    data: [40, 50, 60, 70, 80, 90]
+                                }, {
+                                    label: '라인 그래프2',
+                                    type: 'bar',
+                                    fill: false,
+                                    lineTension: 0.2,
+                                    pointRadius: 0,
+                                    backgroundColor: 'rgb(255, 204, 0)',
+                                    borderColor: 'rgb(255, 204, 0)',
+                                    data: [100, 120, 150, 100, 180, 200]
+                                }*/]
+                                
+                            },
+                            options: {
+                                mainAspectRatio: false,
+                                title: {
+                                    display: true,
+                                    text: '차트 제목',
+                                    fontsize: 30,
+                                    fontColor: 'white'
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+
+
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '2021년 하반기'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '매출액',
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+
+
+                    </script>
+                </div>
+            </div>
+    </section>
+    <footer>
+        <!--<jsp:include page="../../01.IncludePage/Footer2.jsp" />-->
+    </footer>
+</body>

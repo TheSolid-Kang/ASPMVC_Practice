@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Engine._01.DBMgr;
 using ASPMVC_Practice.Migration;
+using Engine._08.CFileMgr;
+using System.Text;
 
 namespace ASPMVC_Practice.Controllers
 {
@@ -12,6 +14,7 @@ namespace ASPMVC_Practice.Controllers
 
         public IActionResult Index()
         {
+            /*
             using(var db = new TestDbContext())
             {
                 var BibleList = db._TFBible.ToList();
@@ -20,6 +23,23 @@ namespace ASPMVC_Practice.Controllers
                     Console.WriteLine(Bible.Testament);
                 }
             }
+            */
+            
+            /*
+            using (var dbMgr = new MSSQL_Mgr())
+            {
+                StringBuilder strBuil = new StringBuilder();
+                strBuil.AppendLine("SELECT * FROM _TFBible" 
+                    + " WHERE Testament = N'잠' AND Chapter >= 30");
+                var list = dbMgr.SelectList<BibleModel>(MSSQL_Mgr.DB_CONNECTION.TWO_MITES, strBuil.ToString());
+                list.ForEach(element => {
+                    System.Diagnostics.Debug.WriteLine($"{element.Testament} {element.Chapter} : {element.Verse}  {element.Descript}");
+                });
+
+            }
+            */
+
+
 
             return View();
         }

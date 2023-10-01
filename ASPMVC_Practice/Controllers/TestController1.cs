@@ -16,7 +16,7 @@ namespace ASPMVC_Practice.Controllers
         public IActionResult Test1()
         {
             var mgr = new MSSQL_Mgr();
-            var ds = mgr.GetDataSet(MSSQL_Mgr.DB_CONNECTION.MATERIAL, "SELECT * FROM _TMMMaster");
+            //var ds = mgr.GetDataSet(MSSQL_Mgr.DB_CONNECTION.MATERIAL, "SELECT * FROM _TMMMaster");
             var ds2 = mgr.GetDataSet(MSSQL_Mgr.DB_CONNECTION.TWO_MITES, "SELECT * FROM _TFBible");
             var listBible = mgr.SelectList<BibleModel>(MSSQL_Mgr.DB_CONNECTION.TWO_MITES, "SELECT * FROM _TFBible");
             listBible.ForEach(x => { 
