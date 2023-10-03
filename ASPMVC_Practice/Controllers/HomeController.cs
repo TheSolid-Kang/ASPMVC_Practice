@@ -33,7 +33,7 @@ namespace ASPMVC_Practice.Controllers
                     + " WHERE Testament = N'잠' AND Chapter >= 30");
                 var list = dbMgr.SelectList<BibleModel>(MSSQL_Mgr.DB_CONNECTION.TWO_MITES, strBuil.ToString());
                 list.ForEach(element => {
-                    System.Diagnostics.Debug.WriteLine($"{element.Testament} {element.Chapter} : {element.Verse}  {element.Descript}");
+                    System.Diagnostics.Debug.WriteLine($"{element.Testament} {element.Chapter.ToString()} : {element.Verse.ToString()}  {element.Descript}");
                 });
 
             }

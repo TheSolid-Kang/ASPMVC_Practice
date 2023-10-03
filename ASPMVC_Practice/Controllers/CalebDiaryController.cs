@@ -3,8 +3,11 @@ using Engine._01.DBMgr;
 using Engine._02.KMP;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Web;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace ASPMVC_Practice.Controllers
 {
@@ -17,25 +20,85 @@ namespace ASPMVC_Practice.Controllers
         // GET: CalebDiaryController
         public IActionResult Index()
         {
+            //List<_TCDiary> _TCDiaries = GetSearchedTCDiary("은아");
+            TempData["_TCDiaries"] = null;
+            TempData["SearchKeyword"] = "";
             return View();
         }
         public IActionResult SearchKeyword(string _searchKeyword)
         {
-            if(string.IsNullOrEmpty(_searchKeyword))
+            if (string.IsNullOrEmpty(_searchKeyword))
                 return RedirectToAction(nameof(Index));//검색어 없이 검색한 경우
 
-            List<_TCDiary> _TCDiaries = GetSearchedTCDiary(_searchKeyword);
-            ViewData["_TCDiarys"] = _TCDiaries;
-            //TempData["DataSet1"] = "111, 65, 90, 120, 80, 95,111, 65, 90, 120, 80, 95";
-            if(_TCDiaries.Count != 0)
-                TempData["DataSet1"] = GetSearchKeywordCount(_TCDiaries, _searchKeyword);
-            else
-                TempData["DataSet1"] = "";
+            List<_TCDiary> _TCDiarySummaries = new();
+            string[] arrColors = { "#ff0000", "#ff8c00", "#ffff00", "#008000", "#0000ff", "#4b0082", "#800080" };
+            var iter = arrColors.GetEnumerator();
 
-            TempData["Keyword"] = _searchKeyword;
-            TempData["Labels"] = "'2022.10'";
+            Dictionary<string, List<_TCDiary>> mapTCDiaries = new();
+            if (_searchKeyword.Contains(","))
+            {
+                foreach (var _keyword in _searchKeyword.Split(","))
+                {
+                    var keyword = _keyword.Trim();
+                    List<_TCDiary> _TCDiaries = GetSearchedTCDiary(keyword);
+                    mapTCDiaries.Add(keyword, _TCDiaries);
+                }
+            }
+            if (mapTCDiaries.Count() < 0)
+                return View(nameof(Index));
 
-            return RedirectToAction(nameof(Index));
+            HashSet<string> setChartX = new HashSet<string>();
+            foreach (var _diaries in mapTCDiaries)
+            {
+                _diaries.Value.ForEach(e =>
+                {
+                    string dateYearMonth = $"{e.InDate.Year.ToString()}.{e.InDate.Month.ToString()}";
+                    setChartX.Add(dateYearMonth);
+                });
+            }
+            string labels = "";
+            foreach(var charX in setChartX)
+            {
+                labels += $"'{charX}', ";
+            }
+            labels = labels.Substring(0, labels.Length - 1);
+
+            // The data for our dataset
+            StringBuilder strBuil = new StringBuilder(2048);
+            strBuil.AppendLine($"data: {{");
+            strBuil.AppendLine($"   labels: [{labels}],");
+            strBuil.AppendLine($"   datasets:");
+            strBuil.Append($"   [");
+            if (_searchKeyword.Contains(","))
+            {
+                foreach (var _keyword in _searchKeyword.Split(","))
+                {
+                    if (false == iter.MoveNext())
+                        break;
+
+                    var keyword = _keyword.Trim();
+                    //1. 다이어리 요약본 작성
+
+                    _TCDiarySummaries = _TCDiarySummaries.Concat(mapTCDiaries[keyword]).ToList();
+                    string data = GetSearchKeywordCount(mapTCDiaries[keyword], setChartX, keyword);
+                    strBuil.AppendLine($"{{");
+
+                    strBuil.AppendLine($"   label: '{keyword}',");
+                    strBuil.AppendLine($"   data: [{data}],");
+                    //strBuil.AppendLine($"        type: 'bar', // 'bar' type, 전체 타입과 같다면 생략가능    ");
+                    strBuil.AppendLine($"   backgroundColor: ['{iter.Current.ToString()}'],");
+                    strBuil.AppendLine($"   borderColor: ['{iter.Current.ToString()}']");
+                    strBuil.Append($"}},");
+                }
+            }
+            string chartDatas = strBuil.ToString();
+            chartDatas = chartDatas.Substring(0, chartDatas.LastIndexOf(","));
+            chartDatas += "]}";
+            TempData["ChartDatas"] = chartDatas;
+            TempData["_TCDiaries"] = _TCDiarySummaries;
+            TempData["SearchKeyword"] = _searchKeyword;
+            return View(nameof(Index));
+
         }
 
         // GET: CalebDiaryController/Details/5
@@ -125,31 +188,28 @@ namespace ASPMVC_Practice.Controllers
             return _TCDiaries;
         }
 
-        private string GetSearchKeywordCount(List<_TCDiary> _TCDiaries, string _searchKeyword)
+        private string GetSearchKeywordCount(List<_TCDiary> _TCDiaries, HashSet<string> _setChartX, string _searchKeyword)
         {
-            DateTime lastDateTime = _TCDiaries.Max(e => e.InDate);
-            DateTime startDateTime = lastDateTime;
-            startDateTime = startDateTime.AddYears(-1);
-            startDateTime = startDateTime.AddMonths(1);
-            startDateTime = startDateTime.AddDays(1 - lastDateTime.Day);
-            _KMP kmp =  new _KMP();
+            _KMP kmp = new _KMP();
+            Dictionary<string, List<_TCDiary>> _mapTCDiaries = new();
+            foreach (var _chartX in _setChartX)
+            {
+                _mapTCDiaries.Add(_chartX, new List<_TCDiary>());
+            }
 
-            Dictionary<DateTime, List<_TCDiary>> _mapTCDiaries = new();
-            _TCDiaries.ForEach(e => {
-                DateTime dateTime = e.InDate;
-                dateTime = dateTime.AddMonths(1);
-                dateTime = dateTime.AddDays(1 - dateTime.Day);
-                //_mapTCDiaries.Add(dateTime, null);
-                if (false == _mapTCDiaries.ContainsKey(dateTime))
+            _TCDiaries.ForEach(e =>
+            {
+                string dateYearMonth = $"{e.InDate.Year.ToString()}.{e.InDate.Month.ToString()}";
+/*                if (false == _mapTCDiaries.ContainsKey(dateYearMonth))
                 {
-                    _mapTCDiaries[dateTime] = new List<_TCDiary>();
+                    _mapTCDiaries[dateYearMonth] = new List<_TCDiary>();
                 }
-
-                _mapTCDiaries[dateTime].Add(e);
+*/
+                _mapTCDiaries[dateYearMonth].Add(e);
             });
 
             string strKeywordCount = "";
-            foreach(var _listTCDiary in _mapTCDiaries)
+            foreach (var _listTCDiary in _mapTCDiaries)
             {
                 var iterable = from element in _listTCDiary.Value select element;
                 int monthCnt = 0;

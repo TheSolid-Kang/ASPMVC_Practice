@@ -1,22 +1,25 @@
-﻿@{
+﻿@using System.Web;
+@{
     ViewData["Title"] = "CalebDiary Index";
-    var DinamicGraph = ViewData["DinamicGraph"] as string;
-    System.Diagnostics.Debug.WriteLine(DinamicGraph);
-
 }
+
+
+
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/CalebDiary.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/CalebDiaryListView.css" asp-append-version="true" />
 </head>
 
 <h1>@ViewData["Title"]</h1>
 <body>
     <div>
         <include page="~/Views/HomeIndex.cshtml" />
-        <form action="/CalebDiary/SearchKeyword">
-            Keyword : <input type="text" name="_searchKeyword"/>
-            <input type="submit"/>
+        <form asp-action="SearchKeyword">
+            Keyword : <input type="text" name="_searchKeyword" value="@Html.Raw(HttpUtility.HtmlDecode(TempData["SearchKeyword"].ToString()))" />
+            <input type="submit" />
         </form>
     </div>
     <header>
@@ -25,66 +28,94 @@
     <section>
         <!--<jsp:include page="../../01.IncludePage/Accordion_ManagerMyPage.jsp" />-->
         <div class="default_box">
-            <h1>디폴트 페이지</h1>
+            <h1>Keyword 언급 횟수</h1>
             <div class="manager_info">
                 <div class="income_chart">
                     <canvas id="myChart1" aria-label="income_chart" role="img"></canvas>
-                    <script>
+                    <script type="text/javascript" charset="utf-8">
                         const ctx = document.getElementById('myChart1').getContext('2d');
                         const myChart = new Chart(ctx, {
                             type: 'bar',
-                            @DinamicGraph
-                            
-                            data: {
-                            /*labels: [@TempData["Labels"], '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],*/
-                            labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-                                datasets: [{
-                                    label: '@TempData["Keyword"]',
-                                    data: [@TempData["DataSet1"]],
-                                    backgroundColor: ['rgba(121, 55, 218, 0.8)'],
-                                    borderColor: ['rgba(121, 55, 218, 1)'],
-                                    borderWidth: 1
-                                }]
-                                
-                            },
+                        @if (TempData["ChartDatas"] is not null)
+                        {
+                            @Html.Raw(HttpUtility.HtmlDecode(TempData["ChartDatas"].ToString()))
+                            ;
+                        },
                             options: {
-                                mainAspectRatio: false,
+                            mainAspectRatio: false,
+                            title: {
+                                display: true,
+                                text: '차트 제목',
+                                fontsize: 30,
+                                fontColor: 'white' 
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+
+
+                        },
+                            scales: {
+                            x: {
                                 title: {
                                     display: true,
-                                    text: '차트 제목',
-                                    fontsize: 30,
-                                    fontColor: 'white'
-                                },
-                                legend: {
-                                    display: true,
-                                    position: 'top'
+                                    text: '12개월 내 keyword 언급'
                                 }
-
-
                             },
-                            scales: {
-                                x: {
-                                    title: {
-                                        display: true,
-                                        text: '12개월 내 keyword 언급'
-                                    }
-                                },
-                                y: {
-                                    title: {
-                                        display: true,
-                                        text: '월별 keyword 언급 횟수',
-                                        beginAtZero: true
-                                    }
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '월별 keyword 언급 횟수',
+                                    beginAtZero: true
                                 }
                             }
-                        });
+                        }
+                                                });
 
 
                     </script>
                 </div>
             </div>
+        </div>
+        <div class="listView">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>일자</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (@TempData["_TCDiaries"] is not null)
+                    {
+                        var _TCDiaries = TempData["_TCDiaries"] as List<_TCDiary>;
+                        if (false == _TCDiaries is null)
+                        {
+                            foreach (var note in _TCDiaries)
+                            {
+                                <tr>
+                                    <td>@note.InDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@note.Title.ToString()</td>
+                                    <td >
+                                        @Html.Raw(note.Record.Replace("\n", "<br/>"))
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div align="right"><a class="btn btn-danger" asp-controller="Note" asp-action="Add">글쓰기</a></div>
+
+        </div>
     </section>
+
     <footer>
+
         <!--<jsp:include page="../../01.IncludePage/Footer2.jsp" />-->
     </footer>
 </body>
