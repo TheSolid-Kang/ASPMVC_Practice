@@ -4,6 +4,7 @@ using Engine._02.KMP;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
@@ -20,7 +21,6 @@ namespace ASPMVC_Practice.Controllers
         // GET: CalebDiaryController
         public IActionResult Index()
         {
-            //List<_TCDiary> _TCDiaries = GetSearchedTCDiary("은아");
             TempData["_TCDiaries"] = null;
             TempData["SearchKeyword"] = "";
             return View();
@@ -43,6 +43,11 @@ namespace ASPMVC_Practice.Controllers
                     List<_TCDiary> _TCDiaries = GetSearchedTCDiary(keyword);
                     mapTCDiaries.Add(keyword, _TCDiaries);
                 }
+            }
+            else
+            {
+                var keyword = _searchKeyword.Trim();
+                mapTCDiaries.Add(keyword, GetSearchedTCDiary(keyword));
             }
             if (mapTCDiaries.Count() < 0)
                 return View(nameof(Index));
@@ -69,27 +74,24 @@ namespace ASPMVC_Practice.Controllers
             strBuil.AppendLine($"   labels: [{labels}],");
             strBuil.AppendLine($"   datasets:");
             strBuil.Append($"   [");
-            if (_searchKeyword.Contains(","))
+            foreach (var _tcdiaries in mapTCDiaries)
             {
-                foreach (var _keyword in _searchKeyword.Split(","))
-                {
                     if (false == iter.MoveNext())
                         break;
 
-                    var keyword = _keyword.Trim();
-                    //1. 다이어리 요약본 작성
+                var keyword = _tcdiaries.Key;
+                //1. 다이어리 요약본 작성
 
-                    _TCDiarySummaries = _TCDiarySummaries.Concat(mapTCDiaries[keyword]).ToList();
-                    string data = GetSearchKeywordCount(mapTCDiaries[keyword], setChartX, keyword);
-                    strBuil.AppendLine($"{{");
+                _TCDiarySummaries = _TCDiarySummaries.Concat(_tcdiaries.Value).ToList();
+                string data = GetSearchKeywordCount(_tcdiaries.Value, setChartX, keyword);
+                strBuil.AppendLine($"{{");
 
-                    strBuil.AppendLine($"   label: '{keyword}',");
-                    strBuil.AppendLine($"   data: [{data}],");
-                    //strBuil.AppendLine($"        type: 'bar', // 'bar' type, 전체 타입과 같다면 생략가능    ");
-                    strBuil.AppendLine($"   backgroundColor: ['{iter.Current.ToString()}'],");
-                    strBuil.AppendLine($"   borderColor: ['{iter.Current.ToString()}']");
-                    strBuil.Append($"}},");
-                }
+                strBuil.AppendLine($"   label: '{keyword}',");
+                strBuil.AppendLine($"   data: [{data}],");
+                strBuil.AppendLine($"   type: 'bar', // 'bar' type, 전체 타입과 같다면 생략가능    ");
+                strBuil.AppendLine($"   backgroundColor: ['{iter.Current.ToString()}'],");
+                strBuil.AppendLine($"   borderColor: ['{iter.Current.ToString()}']");
+                strBuil.Append($"}},");
             }
             string chartDatas = strBuil.ToString();
             chartDatas = chartDatas.Substring(0, chartDatas.LastIndexOf(","));
