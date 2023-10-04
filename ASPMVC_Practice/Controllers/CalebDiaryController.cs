@@ -52,15 +52,19 @@ namespace ASPMVC_Practice.Controllers
             if (mapTCDiaries.Count() < 0)
                 return View(nameof(Index));
 
-            HashSet<string> setChartX = new HashSet<string>();
+            SortedSet<string> setChartX = new SortedSet<string>();
             foreach (var _diaries in mapTCDiaries)
             {
                 _diaries.Value.ForEach(e =>
                 {
-                    string dateYearMonth = $"{e.InDate.Year.ToString()}.{e.InDate.Month.ToString()}";
+                    string year = e.InDate.Year.ToString();
+                    string month = e.InDate.Month.ToString();
+                    if(month.Length < 2) { month = "0" + month; }
+                    string dateYearMonth = $"{year}.{month}";
                     setChartX.Add(dateYearMonth);
                 });
             }
+            
             string labels = "";
             foreach(var charX in setChartX)
             {
@@ -190,7 +194,7 @@ namespace ASPMVC_Practice.Controllers
             return _TCDiaries;
         }
 
-        private string GetSearchKeywordCount(List<_TCDiary> _TCDiaries, HashSet<string> _setChartX, string _searchKeyword)
+        private string GetSearchKeywordCount(List<_TCDiary> _TCDiaries, SortedSet<string> _setChartX, string _searchKeyword)
         {
             _KMP kmp = new _KMP();
             Dictionary<string, List<_TCDiary>> _mapTCDiaries = new();
@@ -201,12 +205,10 @@ namespace ASPMVC_Practice.Controllers
 
             _TCDiaries.ForEach(e =>
             {
-                string dateYearMonth = $"{e.InDate.Year.ToString()}.{e.InDate.Month.ToString()}";
-/*                if (false == _mapTCDiaries.ContainsKey(dateYearMonth))
-                {
-                    _mapTCDiaries[dateYearMonth] = new List<_TCDiary>();
-                }
-*/
+                string year = e.InDate.Year.ToString();
+                string month = e.InDate.Month.ToString();
+                if (month.Length < 2) { month = "0" + month; }
+                string dateYearMonth = $"{year}.{month}";
                 _mapTCDiaries[dateYearMonth].Add(e);
             });
 
