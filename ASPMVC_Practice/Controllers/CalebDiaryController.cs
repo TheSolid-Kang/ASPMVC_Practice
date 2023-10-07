@@ -59,17 +59,21 @@ namespace ASPMVC_Practice.Controllers
                 {
                     string year = e.InDate.Year.ToString();
                     string month = e.InDate.Month.ToString();
-                    if(month.Length < 2) { month = "0" + month; }
+                    if (month.Length < 2) { month = "0" + month; }
                     string dateYearMonth = $"{year}.{month}";
                     setChartX.Add(dateYearMonth);
                 });
             }
-            
+
             string labels = "";
-            foreach(var charX in setChartX)
+            foreach (var charX in setChartX)
             {
                 labels += $"'{charX}', ";
             }
+
+            if(labels == "")
+                return View(nameof(Index));
+
             labels = labels.Substring(0, labels.Length - 1);
 
             // The data for our dataset
@@ -78,15 +82,34 @@ namespace ASPMVC_Practice.Controllers
             strBuil.AppendLine($"   labels: [{labels}],");
             strBuil.AppendLine($"   datasets:");
             strBuil.Append($"   [");
+            _KMP kmp = new _KMP();
+
+            int colorIdx = 0;
             foreach (var _tcdiaries in mapTCDiaries)
             {
-                    if (false == iter.MoveNext())
-                        break;
+                if (false == iter.MoveNext())
+                    break;
 
                 var keyword = _tcdiaries.Key;
+                var convertedKeyword = ConvertTextColor(keyword, arrColors[colorIdx]); //색상 바꾸기
+                var listDiaries = new List<_TCDiary>();
                 //1. 다이어리 요약본 작성
+                _tcdiaries.Value.ForEach(e => {
+                    StringBuilder strBuil = new StringBuilder(4096);
+                    var listIdx = kmp.get_searched_address(e.Record, keyword);
+                    listIdx.ForEach(_idx => {
+                        _TCDiary tCDiary = new _TCDiary(e);
+                        listDiaries.Add(tCDiary);
+                        string record = tCDiary.Record;
+                        int startIdx = record.LastIndexOf("\n", _idx);
+                        int lastIdx = record.IndexOf("\n", _idx);
+                        tCDiary.Record = record.Substring(startIdx + 1, lastIdx - startIdx);
+                        tCDiary.Record = tCDiary.Record.Replace(keyword, convertedKeyword);
+                    });
+                });
+                colorIdx++;
 
-                _TCDiarySummaries = _TCDiarySummaries.Concat(_tcdiaries.Value).ToList();
+                _TCDiarySummaries = _TCDiarySummaries.Concat(listDiaries).ToList();
                 string data = GetSearchKeywordCount(_tcdiaries.Value, setChartX, keyword);
                 strBuil.AppendLine($"{{");
 
@@ -101,7 +124,9 @@ namespace ASPMVC_Practice.Controllers
             chartDatas = chartDatas.Substring(0, chartDatas.LastIndexOf(","));
             chartDatas += "]}";
             TempData["ChartDatas"] = chartDatas;
+
             TempData["_TCDiaries"] = _TCDiarySummaries;
+
             TempData["SearchKeyword"] = _searchKeyword;
             return View(nameof(Index));
 
@@ -229,6 +254,15 @@ namespace ASPMVC_Practice.Controllers
             System.Diagnostics.Debug.WriteLine("  ");
             return strKeywordCount;
         }
+        private string ConvertTextColor(string _text , string _color)
+        {
+            StringBuilder strBuil = new StringBuilder();
+            strBuil.Append($"<span style=\"color:{_color}; font-weight:bold\">");
+            strBuil.Append(_text);
+            strBuil.Append("</span>");
+            return strBuil.ToString();
+        }
+
 
         #endregion
     }

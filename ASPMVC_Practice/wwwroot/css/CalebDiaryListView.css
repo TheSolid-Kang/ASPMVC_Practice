@@ -2,7 +2,6 @@
 .listView {
     width: 100%;
     height: 50%;
-    background-color: #b6ff00;
     float: inherit;
     position: relative;
     z-index: -5;
