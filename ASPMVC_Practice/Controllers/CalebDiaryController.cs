@@ -14,6 +14,8 @@ namespace ASPMVC_Practice.Controllers
 {
     public class CalebDiaryController : BaseController<CalebDiaryController>
     {
+        readonly private int PrintTxtSize = 40;
+
         public CalebDiaryController(ILogger<CalebDiaryController> logger) : base(logger)
         {
         }
@@ -29,6 +31,12 @@ namespace ASPMVC_Practice.Controllers
         {
             if (string.IsNullOrEmpty(_searchKeyword))
                 return RedirectToAction(nameof(Index));//검색어 없이 검색한 경우
+
+            TempData["ChartDatas"] = "";
+            TempData["_TCDiaries"] = "";
+            TempData["SearchKeyword"] = _searchKeyword;
+
+            InsertSearchRecord(_searchKeyword);
 
             List<_TCDiary> _TCDiarySummaries = new();
             string[] arrColors = { "#ff0000", "#ff8c00", "#ffff00", "#008000", "#0000ff", "#4b0082", "#800080" };
@@ -103,8 +111,15 @@ namespace ASPMVC_Practice.Controllers
                         string record = tCDiary.Record;
                         int startIdx = record.LastIndexOf("\n", _idx);
                         int lastIdx = record.IndexOf("\n", _idx);
+                        startIdx = (startIdx < PrintTxtSize) ? 0 : startIdx - PrintTxtSize;
+                        lastIdx = ((record.Length - lastIdx) < PrintTxtSize) ? record.Length - 1 : (PrintTxtSize + lastIdx - 1);
                         tCDiary.Record = record.Substring(startIdx + 1, lastIdx - startIdx);
+
+                        tCDiary.Record = tCDiary.Record.TrimStart('\r', '\n');
+                        tCDiary.Record = tCDiary.Record.TrimEnd('\r', '\n');
+
                         tCDiary.Record = tCDiary.Record.Replace(keyword, convertedKeyword);
+                        tCDiary.Record = $"...{tCDiary.Record}...";
                     });
                 });
                 colorIdx++;
@@ -126,8 +141,6 @@ namespace ASPMVC_Practice.Controllers
             TempData["ChartDatas"] = chartDatas;
 
             TempData["_TCDiaries"] = _TCDiarySummaries;
-
-            TempData["SearchKeyword"] = _searchKeyword;
             return View(nameof(Index));
 
         }
@@ -217,6 +230,15 @@ namespace ASPMVC_Practice.Controllers
             }
 
             return _TCDiaries;
+        }
+        private void InsertSearchRecord(string _searchKeyword)
+        {
+            using(var  dbMgr = new MSSQL_Mgr())
+            {
+                string query = $"INSERT INTO _TCSearchRecord(ChurchSeq, SearchKeyword, LastUserSeq, LastDateTime ) VALUES(1,'{_searchKeyword}', 2, GETDATE());";
+                dbMgr.GetDataSet(MSSQL_Mgr.DB_CONNECTION.CALEB, query);
+            }
+
         }
 
         private string GetSearchKeywordCount(List<_TCDiary> _TCDiaries, SortedSet<string> _setChartX, string _searchKeyword)
