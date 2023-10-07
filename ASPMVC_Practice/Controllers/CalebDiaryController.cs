@@ -47,6 +47,8 @@ namespace ASPMVC_Practice.Controllers
             {
                 foreach (var _keyword in _searchKeyword.Split(","))
                 {
+                    if (_keyword.Equals(""))
+                        continue;
                     var keyword = _keyword.Trim();
                     List<_TCDiary> _TCDiaries = GetSearchedTCDiary(keyword);
                     mapTCDiaries.Add(keyword, _TCDiaries);
@@ -140,6 +142,7 @@ namespace ASPMVC_Practice.Controllers
             chartDatas += "]}";
             TempData["ChartDatas"] = chartDatas;
 
+            _TCDiarySummaries = _TCDiarySummaries.OrderBy(e => e.InDate).ToList();
             TempData["_TCDiaries"] = _TCDiarySummaries;
             return View(nameof(Index));
 
@@ -279,7 +282,7 @@ namespace ASPMVC_Practice.Controllers
         private string ConvertTextColor(string _text , string _color)
         {
             StringBuilder strBuil = new StringBuilder();
-            strBuil.Append($"<span style=\"color:{_color}; font-weight:bold\">");
+            strBuil.Append($"<span style=\"color:{_color}; font-weight:ariel; font-size : large;\">");
             strBuil.Append(_text);
             strBuil.Append("</span>");
             return strBuil.ToString();
