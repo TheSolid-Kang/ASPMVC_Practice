@@ -15,16 +15,37 @@ namespace ASPMVC_Practice.Controllers
         public IActionResult Index()
         {
             /*
+            //1. 데이터 INSERT 방법
             using(var db = new TestDbContext())
             {
-                var BibleList = db._TFBible.ToList();
-                foreach(var Bible in BibleList)
-                {
-                    Console.WriteLine(Bible.Testament);
-                }
+                //var _TFUsers = db._TFUser.ToList();
+                db._TFUser.Add(new _TFUser() { ChurchSeq = 1, ResidID= "david", UserName="나종한" ,Empid="0691", IsAdministrator="1", IsSaved="0" , LastUserSeq= 0, LastDateTime=DateTime.Now }); 
+
+                db.SaveChanges();
+
+                Console.Write("확인");                
             }
             */
-            
+            //2. 데이터 UPDATE 방법
+            using(var db = new TestDbContext())
+            {
+                //1번 방법: 행 하나만 업데이트
+                //  Find()로 찾는다.
+                var _tFUser = db._TFUser.Find(2); 
+                //key가 4개인 경우 4개를 다 넣어야 오류가 안 난다. 
+                //find는 하나만 가져오기 때문임.
+                _tFUser.Empid = "0691";
+                db.SaveChanges();
+
+                //2번 방법: 여러행 업데이트
+                //  Where()로 찾는다.
+
+                //db.SaveChanges();
+            }
+            string str = "안녕하세요.";
+            ViewBag.str = str;
+
+
             /*
             using (var dbMgr = new MSSQL_Mgr())
             {
