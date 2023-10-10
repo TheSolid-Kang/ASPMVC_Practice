@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="efpt.config.json" />
     <_ContentIncludedByDefault Remove="wwwroot\css\CalebDiaryListView.css" />
   </ItemGroup>
 
